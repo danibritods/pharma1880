@@ -1,7 +1,9 @@
 # Anúncios Farmaceuticos no Monitor Campista entre 1880 e 1884
 
-Projeto de análise e visualização de dados coletados na [monografia](https://drive.google.com/file/d/1AHOyU2x0TVYfhFXA_pLwzK_rOqaVCOMR/view) de [Dóris Peres](https://www.behance.net/drisperes1).
-
+Projeto de análise e visualização dos dados coletados na [monografia](https://drive.google.com/file/d/1AHOyU2x0TVYfhFXA_pLwzK_rOqaVCOMR/view) de [Dóris Peres](https://www.behance.net/drisperes1):
+- [ficha de registro](https://docs.google.com/spreadsheets/d/1Be14RT5XPDtsarD1-NpYpkqV5BgyXIQQFt36iCaCsY4/edit?usp=sharing) de todas veiculação de cada anúncio do corpus. 
+- [ficha de análise](https://www.notion.so/262d075ca712800887f6fe4774477031?v=262d075ca71280cd90c6000c052909ba) com as 35 propriedades definidas para cada anúncio.
+- [repositório de imagens](https://drive.google.com/drive/folders/1HyZi_paov0iWure1DvHzdd5A1TtI0gqu) dos anúncios.
 
 ## Organização do Projeto
 ```
