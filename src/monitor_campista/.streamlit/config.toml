@@ -2,14 +2,13 @@
 
 # ------------------------------------------------------------------
 #  FLEXOKI  –  https://github.com/kepano/flexoki
-#  Light-base edition  –  tuned for heavy data-viz & long-form tables
 # ------------------------------------------------------------------
 #  Rule of thumb:  use “paper-*” for surfaces, “ink-*” for content,
 #  and the teal accent only for *actionable* things (links, buttons).
 # ------------------------------------------------------------------
 
 # 1. Core brand switch -------------------------------------------------
-base = "light"          # keep this; dark overrides are at the bottom
+base = "light"
 
 # 2. Surfaces ----------------------------------------------------------
 backgroundColor             = "#F8F9FB"   # paper-50  – main canvas
