@@ -217,18 +217,20 @@ ailments_per_ad = (
         color=alt.Color("Doença", scale=alt.Scale(range=color_scale)),
     )
 )
+_ = st.altair_chart(ailments_per_ad)
 
-st.altair_chart(ailments_per_ad)
-_ = st.altair_chart(
-    (
-        alt.Chart(df_ailments_per_ad.top_k(50, by="Veiculações"))
-        .mark_bar()
-        .encode(
-            x=alt.X("Doença", sort="-y"),
-            y=alt.Y("Veiculações"),
-            color=alt.Color(
-                "Anúncios", scale=alt.Scale(range=[color_scale[1], color_scale[3]])
-            ),
-        )
-    )
+df_top_ailments = df_ailments_per_ad.top_k(90, by="Veiculações")
+base = alt.Chart(df_top_ailments).encode(
+    x=alt.X("Doença:N", sort=alt.SortField(field="Veiculações", order="descending"))
 )
+bar1 = base.mark_bar(color=color_scale[1]).encode(
+    y=alt.Y("Anúncios:Q").axis(titleColor=color_scale[1])
+)
+bar2 = base.mark_bar(color=color_scale[3]).encode(
+    y=alt.Y("Veiculações:Q").axis(titleColor=color_scale[3])
+)
+final_chart = (
+    alt.layer(bar2, bar1).resolve_scale(y="independent").configure_mark(opacity=0.6)
+)
+
+_ = st.altair_chart(final_chart)
