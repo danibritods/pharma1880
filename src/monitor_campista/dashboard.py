@@ -99,6 +99,39 @@ select
 from veiculacoes
 """).pl()
 
+df_disease_count_per_ad = con.query("""
+select
+    Ano,
+    ano_edicao,
+
+from veiculacoes
+""").pl()
+
+df_ailments_count_per_ad = con.sql("""
+    select
+        Identificador as anuncio,
+        count(distinct doenca_mencionada) as doencas
+    from
+        doenca_mencionada
+    group by
+        Identificador
+""").pl()
+
+df_ailments_per_ad = con.sql("""
+    select
+        doenca_mencionada as Doença,
+        count(distinct Identificador) as Anúncios,
+        count(distinct ano_edicao) as Veiculações
+    from
+        doenca_mencionada
+    left join
+        veiculacoes using(Identificador)
+    group by
+        doenca_mencionada
+    order by
+        Anúncios desc
+""").pl()
+
 
 title = "Anúncios de Fármacos Monitor Campista (1880-1884)"
 st.set_page_config(page_title=title, layout="centered")
@@ -136,11 +169,6 @@ st.altair_chart(ads_per_edition, use_container_width=True)
 ads_per_page_year = (
     alt.Chart(df_ad_edition_page)
     .mark_bar()
-    .encode(
-        x=alt.X("Página:O", title="Página"),
-        y=alt.Y("count():Q", stack="zero", title="Veiculações"),
-        color="Ano:N",
-    )
     .transform_aggregate(count="count()", groupby=["Ano", "Página"])
     .encode(
         x=alt.X("Página:N").axis(labelAngle=0),
@@ -149,4 +177,58 @@ ads_per_page_year = (
     )
     .properties(title="Veiculações por página")
 )
-st.altair_chart(ads_per_page_year, use_container_width=True)
+_ = st.altair_chart(ads_per_page_year, use_container_width=True)
+
+ailments_per_ad_hist = (
+    alt.Chart(df_ailments_count_per_ad)
+    .mark_bar()
+    .encode(
+        x=alt.X("doencas:N", title="Contagem doenças mencionadas", sort="x").axis(
+            labelAngle=0
+        ),
+        y=alt.Y("count()", title="Anúncios"),
+        color=alt.Color(value=color_scale[0]),
+    )
+    .properties(title="Doenças Mencionadas por anúncios")
+)
+_ = st.altair_chart(ailments_per_ad_hist)
+
+
+_ = st.dataframe(
+    df_ailments_per_ad,
+    column_config={
+        "Anúncios": st.column_config.ProgressColumn(
+            format="%d", max_value=df_ailments_per_ad["Anúncios"].max()
+        ),
+        "Veiculações": st.column_config.ProgressColumn(
+            format="%d", max_value=df_ailments_per_ad["Veiculações"].max()
+        ),
+    },
+)
+
+ailments_per_ad = (
+    alt.Chart(df_ailments_per_ad)
+    .mark_circle(size=200)
+    .encode(
+        x=alt.X("Anúncios"),
+        y=alt.Y("Veiculações"),
+        text="Doença",
+        tooltip=["Doença", "Anúncios", "Veiculações"],
+        color=alt.Color("Doença", scale=alt.Scale(range=color_scale)),
+    )
+)
+
+st.altair_chart(ailments_per_ad)
+_ = st.altair_chart(
+    (
+        alt.Chart(df_ailments_per_ad.top_k(50, by="Veiculações"))
+        .mark_bar()
+        .encode(
+            x=alt.X("Doença", sort="-y"),
+            y=alt.Y("Veiculações"),
+            color=alt.Color(
+                "Anúncios", scale=alt.Scale(range=[color_scale[1], color_scale[3]])
+            ),
+        )
+    )
+)
