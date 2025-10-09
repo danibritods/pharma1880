@@ -5,26 +5,11 @@ import tomllib
 import duckdb
 from pathlib import Path
 
-# path = Path.cwd()
-# print(path)
-# for item in path.iterdir():
-#     print(item.name)
-
-# print("-------")
-# with open("./src/monitor_campista/streamlit/config.toml", "rb") as f:
-#     config = tomllib.load(f)
-#
-#
-color_scale = [
-    "#007F77",  # teal-700  – accent, starts the scale
-    "#4385BE",  # blue-600
-    "#8B7EC8",  # purple-600
-    "#D83232",  # red-700
-    "#BC6F00",  # orange-700
-    "#6F6E69",  # gray-600  – neutral end-stop
-]
+with open(Path("src/monitor_campista/.streamlit/config.toml"), "rb") as f:
+    config = tomllib.load(f)
 
 
+color_scale = config["theme"]["colorScale"]
 con = duckdb.connect("data/03_gold/monitor_campista_pharma_ads_1880_1884.duckdb", True)
 
 
