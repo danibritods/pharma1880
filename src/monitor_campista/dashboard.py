@@ -261,7 +261,8 @@ def custom_metric(label: str, value) -> None:
 
 def st_dataframe_from_property(property: str, property_title=None, height=260):
     property_title: str = property_title if property_title else property
-    df = con.sql(f"""
+    df = (
+        con.sql(f"""
     select
         {property} as '{property_title}',
         count(distinct Identificador) as Anúncios,
@@ -279,21 +280,27 @@ def st_dataframe_from_property(property: str, property_title=None, height=260):
     order by
         Prevalência desc
     """)
-
+        .pl()
+        .with_columns(
+            (pl.col("Prevalência") * 100 / pl.col("Prevalência").max()).alias(
+                "Prevalência"
+            )
+        )
+    )
     st_df = st.dataframe(
         df,
         hide_index=True,
         height=height,
         column_config={
             "Anúncios": st.column_config.ProgressColumn(
-                format="%d", max_value=df_ailments_per_ad["Anúncios"].max()
+                format="%d", max_value=df["Anúncios"].max()
             ),
             "Veiculações": st.column_config.ProgressColumn(
-                format="%d", max_value=df_ailments_per_ad["Veiculações"].max()
+                format="%d", max_value=df["Veiculações"].max()
             ),
             "Prevalência": st.column_config.ProgressColumn(
-                format="%d",
-                max_value=df_ailments_per_ad["Prevalência"].max(),
+                format="%.0f %%",
+                max_value=df["Prevalência"].max(),
                 help="Produto entre Anúncios e Veiculações",
             ),
         },
