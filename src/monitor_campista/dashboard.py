@@ -479,8 +479,8 @@ df_ailments_per_ad = con.sql("""
 """).pl()
 
 
-tab_main, tab_dicourse, tab_graphics, tab_extras = st.tabs(
-    ["Geral", "Discurso", "Gráfico", "Extras"]
+tab_main, tab_dicourse, tab_graphics, tab_extras, tab_links = st.tabs(
+    ["Geral", "Discurso", "Gráfico", "Extras", "Links"]
 )
 
 
@@ -750,3 +750,20 @@ with tab_extras:
     _ = st_dataframe_from_property("tipo_de_produto", "Tipo de produto")
     _ = st_dataframe_from_property("substancias", "Substância")
     _ = st_dataframe_from_property("responsavel_tecnico", "Responsável técnico")
+
+with tab_links:
+    st.markdown(
+        "[🗃️ Ficha de catálogo](https://docs.google.com/spreadsheets/d/1Be14RT5XPDtsarD1-NpYpkqV5BgyXIQQFt36iCaCsY4/edit?usp=sharing)"
+    )
+    st.markdown(
+        "[🗃️ Ficha de análise](https://www.notion.so/262d075ca712800887f6fe4774477031?v=262d075ca71280cd90c6000c052909ba)"
+    )
+    st.markdown(
+        "[🖼️ Anúncios](https://drive.google.com/drive/folders/1HyZi_paov0iWure1DvHzdd5A1TtI0gqu)"
+    )
+    st.markdown(
+        "[📰 Mudanças do Monitor Campista](https://docs.google.com/spreadsheets/d/133VMhrcGgJwl1AdXv2b-15_sC6qv8KWMBMDfvWqBwiw/edit?usp=sharing)"
+    )
+    st.markdown(
+        "[📰 Jornais de Campos dos Goytacazes](https://docs.google.com/spreadsheets/d/1FcaQgNfmki29YI9Jb6SX3lyNIrBZ-2GsxCZX21ZYHQE/edit?usp=sharing)"
+    )
