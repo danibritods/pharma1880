@@ -259,7 +259,7 @@ def custom_metric(label: str, value) -> None:
     )
 
 
-def st_dataframe_from_property(property: str, property_title=None):
+def st_dataframe_from_property(property: str, property_title=None, height=260):
     property_title: str = property_title if property_title else property
     df = con.sql(f"""
     select
@@ -283,6 +283,7 @@ def st_dataframe_from_property(property: str, property_title=None):
     st_df = st.dataframe(
         df,
         hide_index=True,
+        height=height,
         column_config={
             "Anúncios": st.column_config.ProgressColumn(
                 format="%d", max_value=df_ailments_per_ad["Anúncios"].max()
@@ -605,12 +606,16 @@ with tab_dicourse:
 
     _ = st.altair_chart(final_chart)
 
-    property_to_histogram_by_anuncios(
+    _ = property_to_histogram_by_anuncios(
         "primeiras_palavras_do_anuncio",
         "Primeiras palavras do anúncio",
         True,
-        True,
-        # top_k=40,
+        False,
+        top_k=10,
+    )
+
+    _ = st_dataframe_from_property(
+        "primeiras_palavras_do_anuncio", "Primeiras palavras", height=195
     )
 
     df = con.sql("""
@@ -654,13 +659,24 @@ with tab_dicourse:
         )
         .properties(title="Menção à autorização")
     )
+
+    _ = property_to_histogram_by_anuncios(
+        "palavra_chave_efeito", "Palavras chave de efeito", True, False, 10
+    )
+    _ = st_dataframe_from_property(
+        "palavra_chave_efeito", "Palavras-chave de efeito", height=195
+    )
+
+    _ = property_to_histogram_by_anuncios(
+        "palavras_chave_produto", "Palavras chave de produto", True, False, 10
+    )
+    _ = st_dataframe_from_property(
+        "palavras_chave_produto", "Palavra-chave produto", height=195
+    )
     discourse_analysis = [
-        ["palavra_chave_efeito", "Palavras chave de efeito", True, True, 10],
-        ["palavras_chave_produto", "Palavras chave de produto", True, True, 10],
         ["discursos_de_autoridade", "Discursos de autoridade", "True", "True", 10],
-        ["publico_mencionado", "Público mencionado", True, False, None],
-        ["mencoes_a_lugares", "Menções a Lugares", True, True, None],
-        ["origem", "Origem", True, False],
+        ["publico_mencionado", "Público mencionado", True, True, None],
+        # ["origem", "Origem", True, False],
     ]
 
     for prop in discourse_analysis:
@@ -668,6 +684,11 @@ with tab_dicourse:
         _ = property_to_histogram_by_anuncios(
             column, title, show_percentage, invert_axis, top_k
         )
+
+    _ = property_to_histogram_by_anuncios(
+        "mencoes_a_lugares", "Menções a Lugares", True, False, 10
+    )
+    _ = st_dataframe_from_property("mencoes_a_lugares", "Lugar mencionado", height=250)
 
 
 with tab_graphics:
