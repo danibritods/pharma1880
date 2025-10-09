@@ -259,6 +259,48 @@ def custom_metric(label: str, value) -> None:
     )
 
 
+def st_dataframe_from_property(property: str, property_title=None):
+    property_title: str = property_title if property_title else property
+    df = con.sql(f"""
+    select
+        {property} as '{property_title}',
+        count(distinct Identificador) as Anúncios,
+        count(distinct ano_edicao ||Identificador) as Veiculações,
+        count(distinct Identificador) * count(distinct ano_edicao ||Identificador) as Prevalência
+
+    from
+        {property}
+    left join
+        veiculacoes using(Identificador)
+    left join
+        anuncios using(Identificador)
+    group by
+        {property}
+    order by
+        Prevalência desc
+    """)
+
+    st_df = st.dataframe(
+        df,
+        hide_index=True,
+        column_config={
+            "Anúncios": st.column_config.ProgressColumn(
+                format="%d", max_value=df_ailments_per_ad["Anúncios"].max()
+            ),
+            "Veiculações": st.column_config.ProgressColumn(
+                format="%d", max_value=df_ailments_per_ad["Veiculações"].max()
+            ),
+            "Prevalência": st.column_config.ProgressColumn(
+                format="%d",
+                max_value=df_ailments_per_ad["Prevalência"].max(),
+                help="Produto entre Anúncios e Veiculações",
+            ),
+        },
+    )
+
+    return st_df
+
+
 total_editions = con.query("""
                         select
                             count(distinct ano_edicao)
@@ -693,51 +735,9 @@ with tab_graphics:
         "Presença de imagem"
     """).pl()
     _ = st.altair_chart(df_to_histogram(df, "Presença de imagem", "Anúncios"))
-
-
-def st_dataframe_from_property(property: str, property_title=None):
-    property_title: str = property_title if property_title else property
-    df = con.sql(f"""
-    select
-        {property} as '{property_title}',
-        count(distinct Identificador) as Anúncios,
-        count(distinct ano_edicao ||Identificador) as Veiculações,
-        count(distinct Identificador) * count(distinct ano_edicao ||Identificador) as Prevalência
-
-    from
-        {property}
-    left join
-        veiculacoes using(Identificador)
-    left join
-        anuncios using(Identificador)
-    group by
-        {property}
-    order by
-        Prevalência desc
-    """)
-
-    st_df = st.dataframe(
-        df,
-        hide_index=True,
-        column_config={
-            "Anúncios": st.column_config.ProgressColumn(
-                format="%d", max_value=df_ailments_per_ad["Anúncios"].max()
-            ),
-            "Veiculações": st.column_config.ProgressColumn(
-                format="%d", max_value=df_ailments_per_ad["Veiculações"].max()
-            ),
-            "Prevalência": st.column_config.ProgressColumn(
-                format="%d",
-                max_value=df_ailments_per_ad["Prevalência"].max(),
-                help="Produto entre Anúncios e Veiculações",
-            ),
-        },
+    _ = st_dataframe_from_property(
+        "tipificacao_da_imagem_aprox", "Tipificação da imagem"
     )
-
-    return st_df
-
-
-st_dataframe_from_property("tipificacao_da_imagem_aprox", "Tipificação da imagem")
 
 
 with tab_extras:
