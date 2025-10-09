@@ -570,22 +570,7 @@ with tab_dicourse:
         )
     )
 
-    _ = st.dataframe(
-        df_ailments_per_ad,
-        column_config={
-            "Anúncios": st.column_config.ProgressColumn(
-                format="%d", max_value=df_ailments_per_ad["Anúncios"].max()
-            ),
-            "Veiculações": st.column_config.ProgressColumn(
-                format="%d", max_value=df_ailments_per_ad["Veiculações"].max()
-            ),
-            "Prevalência": st.column_config.ProgressColumn(
-                format="%d",
-                max_value=df_ailments_per_ad["Prevalência"].max(),
-                help="Produto entre Anúncios e Veiculações",
-            ),
-        },
-    )
+    _ = st_dataframe_from_property("doenca_mencionada", "Moléstia mencionada")
 
     ailments_per_ad = (
         alt.Chart(df_ailments_per_ad)
@@ -741,43 +726,6 @@ with tab_graphics:
 
 
 with tab_extras:
-    _ = st.dataframe(
-        df_product_types,
-        column_config={
-            "Anúncios": st.column_config.ProgressColumn(
-                format="%d", max_value=df_substances["Anúncios"].max()
-            ),
-        },
-    )
-    _ = st.dataframe(
-        df_substances,
-        column_config={
-            "Anúncios": st.column_config.ProgressColumn(
-                format="%d", max_value=df_substances["Anúncios"].max()
-            ),
-        },
-    )
-    _ = st.dataframe(
-        df_pharmacists,
-        column_config={
-            "Anúncios": st.column_config.ProgressColumn(
-                format="%d", max_value=df_pharmacists["Anúncios"].max()
-            ),
-        },
-    )
-
-    df = con.sql("""
-        select
-            palavras_chave_produto as 'Palavra-chave produto',
-            count(distinct Identificador) as Anúncios,
-            count(distinct ano_edicao || Identificador) as Veiculações
-        from
-            palavras_chave_produto
-        left join
-            veiculacoes
-                using(Identificador)
-        group by
-            palavras_chave_produto
-        order by
-            Veiculações desc
-    """).pl()
+    _ = st_dataframe_from_property("tipo_de_produto", "Tipo de produto")
+    _ = st_dataframe_from_property("substancias", "Substância")
+    _ = st_dataframe_from_property("responsavel_tecnico", "Responsável técnico")
