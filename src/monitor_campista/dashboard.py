@@ -124,12 +124,17 @@ df_ads = con.sql("""
     select
         image_url as 'Anúncio',
         "Produto ofertado (título completo)",
-        count(*) as Veiculações,
+        count(distinct ano_edicao || Identificador) as Veiculações,
+        group_concat(distinct Orientação) as 'Orientações',
+        group_concat(distinct doenca_mencionada) as Moléstias,
+        group_concat(Orientação) as 'Orientações Detalhadas',
         Identificador,
     from
         veiculacoes
     left join
         anuncios using(Identificador)
+    left join
+        doenca_mencionada using(Identificador)
     group by
         Identificador,
         image_url,
@@ -165,36 +170,43 @@ df_ads_by_page = con.sql("""
     """).pl()
 
 df_ad_edition_page = con.query("""
-select
-    Ano,
-    ano_edicao,
-    Página
-from veiculacoes
-""").pl()
+    select
+        Ano,
+        ano_edicao,
+        Página
+    from veiculacoes
+    """).pl()
 
 df_disease_count_per_ad = con.query("""
-select
-    Ano,
-    ano_edicao,
+    select
+        Ano,
+        ano_edicao,
 
-from veiculacoes
-""").pl()
+    from veiculacoes
+    """).pl()
 
 df_ailments_count_per_ad = con.sql("""
     select
         Identificador as anuncio,
-        count(distinct doenca_mencionada) as doencas
+        count(distinct
+            case when doenca_mencionada = 'Ausente' then null
+            else doenca_mencionada
+            end
+        ) as molestias
     from
-        doenca_mencionada
+        anuncios
+    left join
+        doenca_mencionada using(Identificador)
     group by
         Identificador
 """).pl()
 
 df_ailments_per_ad = con.sql("""
     select
-        doenca_mencionada as Doença,
+        doenca_mencionada as Moléstia,
         count(distinct Identificador) as Anúncios,
-        count(distinct ano_edicao) as Veiculações
+        count(distinct ano_edicao) as Veiculações,
+        count(distinct Identificador) * count(distinct ano_edicao) as Prevalência
     from
         doenca_mencionada
     left join
