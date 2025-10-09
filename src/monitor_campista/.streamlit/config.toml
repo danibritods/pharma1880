@@ -2,18 +2,16 @@
 
 font = "EB Garamond"
 headingFont = "EB Garamond"
+
 # ------------------------------------------------------------------
 #  FLEXOKI  –  https://github.com/kepano/flexoki
-# ------------------------------------------------------------------
-#  Rule of thumb:  use “paper-*” for surfaces, “ink-*” for content,
-#  and the teal accent only for *actionable* things (links, buttons).
 # ------------------------------------------------------------------
 
 # 1. Core brand switch -------------------------------------------------
 base = "light"
 
 # 2. Surfaces ----------------------------------------------------------
-backgroundColor             = "#F8F9FB"   # paper-50  – main canvas
+backgroundColor             = "#FFFFFF"   # pure white – main canvas
 secondaryBackgroundColor    = "#F2EFE6"   # paper-100 – sidebar, cards, tooltips
 
 # 3. Ink ----------------------------------------------------------------
@@ -21,7 +19,7 @@ textColor                   = "#100F0F"   # ink-900   – highest contrast body 
 # (Streamlit derives muted text automatically at 80 % opacity of textColor)
 
 # 4. Accent & interaction ---------------------------------------------
-primaryColor                = "#007F77"   # teal-700  – buttons, checkboxes, sliders
+primaryColor                = "#8a9a48"   #           – buttons, checkboxes, sliders
 linkColor                   = "#007F77"   # same as primary for consistency
 
 # 5. Boundaries --------------------------------------------------------
@@ -29,19 +27,9 @@ borderColor                 = "#CFCDC4"   # paper-200 – subtle dividers
 # Keep border thin (1 px) in st.markdown CSS for airy feel.
 dataframeBorderColor =   "#FFFCF0"
 
-# 6. Feedback colours --------------------------------------------------
-# chosen at the *same perceptual brightness* so alerts don’t visually shout
-warningBackgroundColor      = "#FFFBE6"   # yellow-50 tint (paper + 4 % yellow)
-warningTextColor            = "#A87300"   # yellow-700
-errorBackgroundColor        = "#FFF0F0"   # red-50 tint
-errorTextColor              = "#D83232"   # red-700
-successBackgroundColor      = "#F0FBFA"   # green-50 tint
-successTextColor            = "#3AA99F"   # green-600 (slightly lighter than teal)
 
-# 7. Dataviz palette ---------------------------------------------------
-# Flexoki’s full 6-hue set ordered by perceptual uniformity
-# (use these in Altair / Plotly scale_* arguments for instant good taste)
 colorScale = [
+    "#8a9a48",
     "#007F77",   # teal-700  – accent, starts the scale
     "#4385BE",   # blue-600
     "#8B7EC8",   # purple-600
@@ -49,22 +37,3 @@ colorScale = [
     "#BC6F00",   # orange-700
     "#6F6E69"    # gray-600  – neutral end-stop
 ]
-
-# 8. Extras (not read by Streamlit but handy for CSS hacks) ------------
-paper200 = "#CFCDC4"
-paper300 = "#B8B5AC"
-ink700   = "#403E3C"
-ink600   = "#575653"
-
-# 9. Dark overrides (uncomment if you ever flip base = "dark") ---------
-# base                      = "dark"
-# backgroundColor           = "#100F0F"   # ink-900
-# secondaryBackgroundColor  = "#1C1B1A"   # ink-800
-# textColor                 = "#FFFCF0"   # paper-50
-# borderColor               = "#403E3C"   # ink-700
-# warningBackgroundColor    = "#2A291E"   # yellow tinted dark surface
-# warningTextColor          = "#E9B44C"   # yellow-500
-# errorBackgroundColor      = "#291C1C"   # red tinted dark surface
-# errorTextColor            = "#E16A6A"   # red-500
-# successBackgroundColor    = "#1C2929"   # green tinted dark surface
-# successTextColor          = "#3AA99F"   # green-600 (kept)
