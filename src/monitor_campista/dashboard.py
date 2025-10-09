@@ -8,6 +8,12 @@ from pathlib import Path
 with open(Path("src/monitor_campista/.streamlit/config.toml"), "rb") as f:
     config = tomllib.load(f)
 
+page_title = "Anúncios de Fármacos Monitor Campista (1880-1884)"
+title = "Entre tônicos e depurativos: a memória gráfica nos anúncios de fármacos do Monitor Campista <small>(1880-1884)</small>"
+
+st.set_page_config(page_title=page_title, layout="centered", page_icon="📰")
+
+st.markdown(f"<h1 style='font-size: 28px;'>{title}</h1>", unsafe_allow_html=True)
 
 color_scale = config["theme"]["colorScale"]
 con = duckdb.connect("data/03_gold/monitor_campista_pharma_ads_1880_1884.duckdb", True)
