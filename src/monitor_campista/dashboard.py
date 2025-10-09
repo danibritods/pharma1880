@@ -18,6 +18,28 @@ st.markdown(f"<h1 style='font-size: 28px;'>{title}</h1>", unsafe_allow_html=True
 color_scale = config["theme"]["colorScale"]
 con = duckdb.connect("data/03_gold/monitor_campista_pharma_ads_1880_1884.duckdb", True)
 
+def custom_metric(label: str, value) -> None:
+    st.markdown(
+        f"""
+        <div style="
+            text-align:center;
+            padding-bottom:1.4rem;">
+            <div style="
+                font-size:2.2rem;
+                line-height:1.1;">
+                {value}
+            </div>
+            <div style="
+                font-size:0.85rem;
+                color:#6b7281;
+                margin-top:-0.25rem;">
+                {label}
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
 
 total_editions = con.query("""
                         select
@@ -25,18 +47,78 @@ total_editions = con.query("""
                         from
                             veiculacoes
                         """).pl()[0, 0]
+
 total_ads = con.query("""
                         select
                             count(distinct Identificador)
                         from
                             veiculacoes
                         """).pl()[0, 0]
+
 total_ads_single_products = con.query("""
                         select
                             count(distinct Identificador)
                         from
                             anuncios
                         """).pl()[0, 0]
+
+total_unique_producs = con.query("""
+    select
+        count(distinct Identificador)
+    from
+        anuncios
+    where
+        "Original (primeira aparição)" is null
+    """).pl()[0, 0]
+
+total_placements = con.query("""
+                        select
+                            count(*)
+                        from
+                            veiculacoes
+                        """).pl()[0, 0]
+
+df_substances = con.query("""
+    select
+        substancias as Substâncias,
+        count(distinct Identificador) as Anúncios
+    from
+        substancias
+    left join
+        anuncios using(Identificador)
+    group by
+        substancias
+    order by
+        Anúncios desc
+    """).pl()
+
+df_pharmacists = con.query("""
+    select
+        responsavel_tecnico as Farmacêutico,
+        count(distinct Identificador) as Anúncios
+    from
+        responsavel_tecnico
+    left join
+        anuncios using(Identificador)
+    group by
+        responsavel_tecnico
+    order by
+        Anúncios desc
+                        """).pl()
+
+df_product_types = con.query("""
+    select
+        tipo_de_produto as 'Tipo de Produto',
+        count(distinct Identificador) as Anúncios
+    from
+        tipo_de_produto
+    left join
+        anuncios using(Identificador)
+    group by
+        tipo_de_produto
+    order by
+        Anúncios desc
+                        """).pl()
 
 df_ads = con.sql("""
     select
@@ -124,15 +206,33 @@ df_ailments_per_ad = con.sql("""
 """).pl()
 
 
-title = "Anúncios de Fármacos Monitor Campista (1880-1884)"
-st.set_page_config(page_title=title, layout="centered")
-st.title(title)
+tab_main, tab_dicourse, tab_graphics, tab_extras = st.tabs(
+    ["Geral", "Discurso", "Gráfico", "Extras"]
+)
 
-col1, col2, col3 = st.columns(3)
-col1.metric("Edições", total_editions)
-col2.metric("Anúncios Fármacos", total_ads)
-col3.metric("Anúncios Analisados", total_ads_single_products)
 
+with tab_main:
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        custom_metric("Edições", total_editions)
+    with col2:
+        custom_metric("Veiculações", total_placements)
+    with col3:
+        custom_metric("Anúncios Fármacos", total_ads)
+
+    with col1:
+        custom_metric("Anúncios Analisados", total_ads_single_products)
+    with col2:
+        custom_metric("Produtos", total_unique_producs)
+    with col3:
+        custom_metric("Tipos de Produto", df_product_types["Tipo de Produto"].count())
+
+    with col1:
+        custom_metric("Moléstias", df_ailments_per_ad["Moléstia"].unique().count())
+    with col2:
+        custom_metric("Substâncias", df_substances["Substâncias"].count())
+    with col3:
+        custom_metric("Farmacéuticos", df_pharmacists["Farmacêutico"].count())
 
 ads = st.dataframe(
     df_ads,
