@@ -282,7 +282,7 @@ def st_dataframe_from_property(property: str, property_title=None, height=260):
     """)
         .pl()
         .with_columns(
-            (pl.col("Prevalência") * 100 / pl.col("Prevalência").max()).alias(
+            (pl.col("Prevalência") * 100 / pl.col("Prevalência").sum()).alias(
                 "Prevalência"
             )
         )
