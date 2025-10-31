@@ -609,7 +609,7 @@ with tab_dicourse:
     )
     final_chart = (
         alt.layer(bar2, bar1).resolve_scale(y="independent").configure_mark(opacity=0.6)
-    ).properties(title="Moéstias por veiculações e anúncios")
+    ).properties(title="Moléstias por veiculações e anúncios")
 
     _ = st.altair_chart(final_chart)
 
@@ -760,7 +760,7 @@ with tab_extras:
 
 with tab_links:
     st.markdown(
-        "[🗃️ Ficha de catálogo](https://docs.google.com/spreadsheets/d/1Be14RT5XPDtsarD1-NpYpkqV5BgyXIQQFt36iCaCsY4/edit?usp=sharing)"
+        "[🗃️ Ficha de registro](https://docs.google.com/spreadsheets/d/1Be14RT5XPDtsarD1-NpYpkqV5BgyXIQQFt36iCaCsY4/edit?usp=sharing)"
     )
     st.markdown(
         "[🗃️ Ficha de análise](https://www.notion.so/262d075ca712800887f6fe4774477031?v=262d075ca71280cd90c6000c052909ba)"
