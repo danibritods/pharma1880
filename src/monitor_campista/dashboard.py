@@ -529,7 +529,7 @@ with tab_main:
         .encode(
             x=alt.X("ano_edicao").title("Edição"),
             y=alt.Y("anuncios").title("Contagem Anúncios"),
-            color=alt.Color("ano:N").scale(range=color_scale),
+            color=alt.Color("ano:N").scale(range=color_scale).title("Ano"),
         )
         .properties(title="Veiculação por Edição")
     )
