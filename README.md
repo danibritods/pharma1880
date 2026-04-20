@@ -1,7 +1,7 @@
 # Anúncios Farmacêuticos no Monitor Campista entre 1880 e 1884
 
 
-Projeto de análise e visualização dos dados coletados trabalho de conclusão de curso de [Dóris Peres](https://www.behance.net/drisperes1) para bacharelado em [Design Gráfico](https://portal1.iff.edu.br/nossos-campi/campos-centro/cursos-nova-interface/cursos-superiores/bacharelado-design-grafico). Você pode ler a monografia completa [aqui](https://bd.centro.iff.edu.br/jspui/handle/123456789/5158) e os slides [aqui](https://docs.google.com/presentation/d/1Df3J17v3NsET7FBPRfkxk0xAz6KsPHYGP8fx6s01JHo/edit?usp=sharing).
+Projeto de análise e visualização dos dados coletados no trabalho de conclusão de curso de [Dóris Peres](https://www.behance.net/drisperes1) para bacharelado em [Design Gráfico](https://portal1.iff.edu.br/nossos-campi/campos-centro/cursos-nova-interface/cursos-superiores/bacharelado-design-grafico). Você pode ler a monografia completa [aqui](https://bd.centro.iff.edu.br/jspui/handle/123456789/5158) e os slides [aqui](https://docs.google.com/presentation/d/1Df3J17v3NsET7FBPRfkxk0xAz6KsPHYGP8fx6s01JHo/edit?usp=sharing). Eu fui responsável por auxiliar a autora na estruturação técnica do projeto, especialmente a arquitetura, modelagem e processamento dos dados.  
 
 ![Capa](docs/banner.png)
 
@@ -43,7 +43,7 @@ pharma1880/
 │   ├── 01_bronze/
 │   │   ├── notion_ficha_analise.csv
 │   │   └── sheets_ficha_registro_veiculacoes.csv
-│   ├── 02_silver/
+│   ├── 02_silver/                              # vazio por design (ver Arquitetura de Dados)
 │   └── 03_gold/
 │       ├── monitor_campista_pharma_ads_1880_1884.duckdb 
 │       └── monitor_campista_pharma_ads_1880_1884.db 
@@ -58,6 +58,45 @@ pharma1880/
         ├── __init__.py
         ├── data_processing.py
         └── dashboard.py
+```
+
+## Arquitetura de Dados
+
+Desenhamos a estrutura das fichas de registro e análise para garantir a viabilidade técnica (*feasibility*) de capturar e analisar manualmente quase 2.000 veiculações de anúncios do século XIX. As colunas foram estruturadas desde o início em formato *tidy*, mantendo a inserção simples para a pesquisa em campo e o processamento posterior direto.
+
+Os dados fluem seguindo o padrão da Arquitetura Medalhão:
+
+1. **Bronze:** extraímos os dados diretamente dos CSVs das planilhas de coleta (Google Sheets e Notion). Aqui, propriedades multivaloradas de um anúncio (ex: uma única propaganda citando as doenças Tosse, Tuberculose e Febre ao mesmo tempo) coexistem como strings separadas por vírgulas.
+2. **Silver (Em Memória):** carregamos os dados, filtramos registros inválidos, padronizamos nomes de propriedades e extraímos URLs das imagens. Uma decisão arquitetural aqui foi não gerar artefatos físicos no disco. Como o App consome diretamente o banco final, não há caso de uso intermediário.
+3. **Gold (Modelagem Dimensional em 4NF):** tabelas achatadas com arrays trazem *overhead* a cada consulta. Para evitar isso, "explodimos" cada uma das 24 propriedades multivaloradas da ficha de análise em sua própria tabela dimensional, gerando relações puras de um-para-muitos. As propriedades de valor único (Preço, Depósito, etc.) permanecem na tabela fato `anuncios` — uma linha por anúncio distinto. Junto à tabela fato `veiculacoes` (oriunda da ficha de registro), o banco totaliza **30 tabelas**. Ao isolar atributos multivalorados independentes, garantimos a semântica típica de **Quarta Forma Normal (4NF)**, e o DuckDB consegue realizar *joins* e agregações instantaneamente.
+
+```mermaid
+graph TD
+    subgraph Bronze [Camada Bronze: Dados Brutos]
+        A[Notion CSV <br/> Ficha de Análise] --> B(01_bronze)
+        C[Google Sheets CSV <br/> Ficha de Registro] --> B
+    end
+
+    subgraph Silver ["Camada Silver: Limpeza (Em Memória)"]
+        B --> D[[Polars]]
+        D --> E[Filtragem e Curadoria]
+        E --> F[Padronização de Chaves <br> e Extração de URLs]
+    end
+
+    subgraph Gold [Camada Gold: Modelagem 4NF]
+        F --> X[Explosão de Arrays <br> para Normalização Relacional]
+        X --> G[(DuckDB / SQLite)]
+        G --> H[2 Tabelas Fato <br/> anúncios e veiculações]
+        G --> I[24 Tabelas Dimensão <br/> doenças, substâncias, etc.]
+        G --> L[4 Tabelas Auxiliares <br/> original, derivados, etc.]
+    end
+
+    subgraph Consumo [Visualização]
+        H -.-> J[Streamlit Dashboard]
+        I -.-> J
+        H -.-> K[Jupyter Análises]
+        I -.-> K
+    end
 ```
 
 ## Tutorial
