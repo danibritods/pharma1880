@@ -56,7 +56,7 @@ pharma1880/
 └── src/
     └── monitor_campista/
         ├── __init__.py
-        ├── data_processing.py
+        ├── pipeline.py
         └── dashboard.py
 ```
 
@@ -68,7 +68,7 @@ Os dados fluem seguindo o padrão da Arquitetura Medalhão:
 
 1. **Bronze:** extraímos os dados diretamente dos CSVs das planilhas de coleta (Google Sheets e Notion). Aqui, propriedades multivaloradas de um anúncio (ex: uma única propaganda citando as doenças Tosse, Tuberculose e Febre ao mesmo tempo) coexistem como strings separadas por vírgulas.
 2. **Silver (Em Memória):** carregamos os dados, filtramos registros inválidos, padronizamos nomes de propriedades e extraímos URLs das imagens. Uma decisão arquitetural aqui foi não gerar artefatos físicos no disco. Como o App consome diretamente o banco final, não há caso de uso intermediário.
-3. **Gold (Modelagem Dimensional em 4NF):** tabelas achatadas com arrays trazem *overhead* a cada consulta. Para evitar isso, "explodimos" cada uma das 24 propriedades multivaloradas da ficha de análise em sua própria tabela dimensional, gerando relações puras de um-para-muitos. As propriedades de valor único (Preço, Depósito, etc.) permanecem na tabela fato `anuncios` — uma linha por anúncio distinto. Junto à tabela fato `veiculacoes` (oriunda da ficha de registro), o banco totaliza **30 tabelas**. Ao isolar atributos multivalorados independentes, garantimos a semântica típica de **Quarta Forma Normal (4NF)**, e o DuckDB consegue realizar *joins* e agregações instantaneamente.
+3. **Gold (Modelagem Dimensional em 4NF):** tabelas achatadas com arrays trazem *overhead* a cada consulta. Para evitar isso, "explodimos" cada uma das 24 propriedades multivaloradas da ficha de análise em sua própria tabela dimensional, gerando relações puras de um-para-muitos. As propriedades de valor único (Preço, Depósito, etc.) permanecem na tabela fato `anuncios` — uma linha por anúncio distinto. Junto à tabela fato `veiculacoes` (oriunda da ficha de registro) e uma tabela auxiliar de derivações, o banco totaliza **27 tabelas**. Ao isolar atributos multivalorados independentes, garantimos a semântica típica de **Quarta Forma Normal (4NF)**, e o DuckDB consegue realizar *joins* e agregações instantaneamente.
 
 ```mermaid
 graph TD
@@ -88,7 +88,6 @@ graph TD
         X --> G[(DuckDB / SQLite)]
         G --> H[2 Tabelas Fato <br/> anúncios e veiculações]
         G --> I[24 Tabelas Dimensão <br/> doenças, substâncias, etc.]
-        G --> L[4 Tabelas Auxiliares <br/> original, derivados, etc.]
     end
 
     subgraph Consumo [Visualização]
@@ -101,14 +100,19 @@ graph TD
 
 ## Tutorial
 
-O único pré-requisito desse projeto é o [uv](https://docs.astral.sh/uv/getting-started/installation/), ele resolve todo o resto. 
+O único pré-requisito desse projeto é o [uv](https://docs.astral.sh/uv/getting-started/installation/), ele resolve todo o resto.
 
-Utilize o Jupyter Lab para explorar os dados, criar visualizações, combinar tabelas, etc:
+Para reconstruir os bancos de dados a partir dos CSVs brutos:
+```bash
+uv run update-data
+```
+
+Para explorar os dados interativamente em Jupyter:
 ```bash
 uv run jupyter lab
 ```
 
-Utilize o streamlit para visualizar o dashboard com o resumo das principais visualizações construídas:
+Para visualizar o dashboard:
 ```bash
 uv run streamlit run src/monitor_campista/dashboard.py
 ```
