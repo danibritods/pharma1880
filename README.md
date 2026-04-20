@@ -114,7 +114,7 @@ uv run jupyter lab
 
 Para visualizar o dashboard:
 ```bash
-uv run streamlit run src/monitor_campista/dashboard.py
+uv run dashboard
 ```
 
 ## Ferramentas utilizadas

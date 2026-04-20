@@ -14,6 +14,7 @@ dependencies = [
 
 [project.scripts]
 update-data = "monitor_campista.pipeline:main"
+dashboard = "monitor_campista:run_dashboard"
 
 [build-system]
 requires = ["hatchling"]
